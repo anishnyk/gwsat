@@ -1,0 +1,27 @@
+name: astro
+channels:
+- menpo
+- anaconda
+- defaults
+dependencies:
+- numpy
+- pip
+- python=3.5
+- traitsui
+- ipython
+- jedi
+- matplotlib
+- mayavi
+- traits
+- traitsui
+- vtk
+- pyqt=4
+- pytest
+- pytest-cov
+- pip:
+  - astro
+  - kinematics
+  - spacetrack
+  - spiceypy
+prefix: /home/shankar/anaconda3/envs/astro
+
