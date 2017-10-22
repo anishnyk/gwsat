@@ -15,6 +15,7 @@ dependencies:
 - traits
 - traitsui
 - vtk
+- scipy
 - pyqt=4
 - pytest
 - pytest-cov
