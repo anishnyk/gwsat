@@ -7,10 +7,16 @@ The end goal is to validate the entire mission prior to actual flight, entirely 
 ## Environment setup
 
 * Install Anaconda
-* Create the `astro` enviornment
+* Create/Update the `astro` enviornment
 
 ~~~
 conda env create -f astro.yml
+~~~
+
+or
+
+~~~ 
+conda-env update -n astro -f astro.yml
 ~~~
 
 * Run the tests to make sure it's working correctly
@@ -19,14 +25,26 @@ conda env create -f astro.yml
 pytest
 ~~~
 
+* Change environment and run the simulation
+
+~~~
+source activate astro
+python run_sim.py
+~~~
+
 ## TODO
 
 * [ ] Orbital dynamics
 * [ ] Attitude Dynamics
+* [ ] Testing
+    * [ ] Make sure all dependencies are working
+        * [ ] VTK
+        * [ ] Spacetrack
+        * [ ] `astro` and `kinematics`
 
 ### Things to model
 
-* [ ] High Fidelity gravity model
+* [ ] High Fidelity gravity model - spherical harmonic
 * [ ] Earth orientation parameters
 * [ ] Star field and star tracker imagery/estimation
 * [ ] Ground imaging/pointing - simulate camera imagery of Costa Rica
