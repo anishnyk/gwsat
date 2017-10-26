@@ -16,7 +16,7 @@ conda env create -f astro.yml
 or
 
 ~~~ 
-conda-env update -n astro -f astro.yml
+conda env update -n astro -f astro.yml
 ~~~
 
 * Run the tests to make sure it's working correctly
