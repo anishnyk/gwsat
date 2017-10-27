@@ -10,6 +10,8 @@ import traitsui.api
 from mayavi.core.api import PipelineBase
 from mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 
+from gwsat import visualization, simulation
+
 class MainWindow(traits.api.HasTraits):
     run_sim_button = traits.api.Button('Run Sim')
     animate_button = traits.api.Button('Animate')
@@ -18,6 +20,9 @@ class MainWindow(traits.api.HasTraits):
     orbit_scene = traits.api.Instance(MlabSceneModel, ())
     groundtrack_scene = traits.api.Instance(MlabSceneModel, ())
     attitude_scene = traits.api.Instance(MlabSceneModel, ())
+    
+    # mayavi pipeline elements
+    central_body = traits.api.Instance(PipelineBase)
 
     # arrange the scenes and buttons into groups
     ui_group = traitsui.api.Group(traitsui.api.Item('run_sim_button', style='custom', show_label=False),
@@ -41,6 +46,12 @@ class MainWindow(traits.api.HasTraits):
                                                   att_group),
                              width=800, height=600, resizable=True)
     
+    def _run_sim_button_fired(self):
+        """Just run the simulation and save the data
+        """
+        jd, state =simulation.run_sim()        
+        self.central_body = visualization.draw_earth(self.orbit_scene)         
+
 if __name__ == '__main__':
     MainWindow().configure_traits()
 
