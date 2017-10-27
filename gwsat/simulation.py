@@ -66,8 +66,10 @@ def run_sim():
         i_state[ii, :] = system.integrate(system.t + t_step)
         ii += 1
 
-    # visualize
-    visualization.orbit_mayavi(i_state)
+    # output state and variables
+    return jd_sim, i_state
 
 if __name__ == '__main__':
-    run_sim()
+    jd, i_state = run_sim()
+    # visualize
+    visualization.orbit_mayavi(i_state)
