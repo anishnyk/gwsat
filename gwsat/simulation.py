@@ -62,7 +62,7 @@ def run_sim():
 
     ii = 1
     while system.successful() and system.t < (num_sec - t_step):
-        jd_sim[ii] = (system.t + t_step)*86400 + start_jd
+        jd_sim[ii] = (system.t + t_step)/86400 + start_jd
         i_state[ii, :] = system.integrate(system.t + t_step)
         ii += 1
 
