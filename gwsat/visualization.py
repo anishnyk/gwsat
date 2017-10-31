@@ -25,7 +25,7 @@ from mayavi.sources.builtin_surface import BuiltinSurface
 from tvtk.api import tvtk
 import numpy as np
 from astro import constants
-
+from scipy import ndimage
 
 def load_texture(filename):
     img = tvtk.JPEGReader(file_name=filename)
@@ -42,15 +42,6 @@ def add_texture(source, mode, filename):
 
 
 def draw_earth(scene):
-    sphere = mlab.points3d(0, 0, 0, 1, scale_mode='none', scale_factor=2,
-                           color=(0.67, 0.77, 0.93), resolution=10,
-                           opacity=0.9, name='Earth',
-                           figure=scene.mayavi_scene)
-
-    add_texture(sphere, 'sphere', './data/earthmap1k.jpg')
-    sphere.actor.property.specular = 0.45
-    sphere.actor.property.specular_power = 5
-    sphere.actor.property.backface_culling = True
 
     # draw the axes
     scale = 5
@@ -69,11 +60,26 @@ def draw_earth(scene):
                           line_width=line_width, mode=mode,
                           figure=scene.mayavi_scene)
 
-    x, y = np.mgrid[-10:10, -10:10]
+    extent = 3
+    x, y = np.mgrid[-extent:extent, -extent:extent]
     plane = mlab.surf(x, y, np.zeros_like(x), opacity=0.1,
-                      extent=[-10, 10, -10, 10, 0, 0],
+                      extent=[-extent,extent, -extent,extent, 0, 0],
                       figure=scene.mayavi_scene)
 
+    # sphere = mlab.points3d(0, 0, 0, 1, scale_mode='none', scale_factor=2,
+    #                        color=(0.67, 0.77, 0.93), resolution=50,
+    #                        opacity=0.9, name='Earth',
+    #                        figure=scene.mayavi_scene)
+    phi, theta = np.mgrid[0:np.pi+0.1:0.1, 0:2*np.pi+0.1:0.1] 
+    x = np.sin(phi) * np.cos(theta) 
+    y = np.sin(phi) * np.sin(theta) 
+    z = np.cos(phi) 
+    sphere = mlab.mesh(x, y, z) 
+
+    add_texture(sphere, 'sphere', './data/earthmap1k.jpg')
+    sphere.actor.property.specular = 0.45
+    sphere.actor.property.specular_power = 5
+    sphere.actor.property.backface_culling = True
     return sphere
 
 
@@ -87,7 +93,7 @@ def draw_orbit(pos_eci, scene):
                         np.ones_like(pos_eci[:, 0]),
                         line_width=line_width, tube_radius=tube_radius,
                         color=(1, 0, 0),
-                        figure=scene)
+                        figure=scene.mayavi_scene)
     return orbit
 
 
@@ -102,9 +108,36 @@ def draw_sat(sat_eci, scene):
     return sat
 
 
+def draw_groundtrack_surface(scene):
+    """Load the Earth Texture image as the surface
+    """
+    # set scene to have simple interactor
+    scene.scene.interactor.interactor_style = tvtk.InteractorStyleTerrain()
+    surface_image = ndimage.imread('./data/earthmap1k.jpg')
+    surface_image = np.rot90(surface_image[:, :, 0], -1)
+    surface = mlab.imshow(surface_image, figure=scene.mayavi_scene,
+                          extent=[-180, 180, -90, 90, 0, 0])
+    mlab.axes(surface,
+              extent=[-180, 180, -90, 90, 0, 0],
+              z_axis_visibility=False)
+
+    return surface
+
 def orbit_mayavi(inertial_state, scene):
     pos_eci = inertial_state[:, 0:3]
     sphere = draw_earth(scene)
     orbit = draw_orbit(pos_eci / constants.earth.radius, scene)
 
     mlab.show()
+
+
+@mlab.animate(delay=50)
+def animate_sat(sat_mlab_source, sat_pos_eci, eci_scene):
+    increment = 1
+    frame_play = 0
+    while frame_play <= sat_pos_eci.shape[0]:
+        x, y, z = sat_pos_eci[frame_play, :]
+        sat_mlab_source.set(x=x, y=y, z=z)
+        frame_play += increment
+        yield
+
