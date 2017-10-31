@@ -61,7 +61,7 @@ class MainWindow(traits.api.HasTraits):
         """Just run the simulation and save the data
         """
         self.jd, self.state = simulation.run_sim()
-        
+         
         # convert ECI state to ECEF and LLA
         self.eci_pos = self.state[:, 0:3]
         self.ecef_pos = np.zeros_like(self.eci_pos)

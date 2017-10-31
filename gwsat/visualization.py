@@ -147,9 +147,10 @@ def animate_scenes(sat_mlab_source, gsat_mlab_source, sat_pos_eci, lla_pos, eci_
     frame_play = 0
     while frame_play <= sat_pos_eci.shape[0]:
         x, y, z = sat_pos_eci[frame_play, :]
-        
+                
         lat = attitude.normalize(np.rad2deg(lla_pos[frame_play, 0]), -90, 90)
-        lon = attitude.normalize(np.rad2deg(lla_pos[frame_play, 1]), -180, 180, False)
+        lon = attitude.normalize(np.rad2deg(lla_pos[frame_play, 1]), -180, 180)
+        print('lat: {} lon: {}'.format(lat, lon))
         sat_mlab_source.set(x=x, y=y, z=z)
         gsat_mlab_source.set(x=lon, y=lat, z=0)
         frame_play += increment
