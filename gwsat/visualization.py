@@ -26,6 +26,7 @@ from tvtk.api import tvtk
 import numpy as np
 from astro import constants
 from scipy import ndimage
+from kinematics import attitude
 
 def load_texture(filename):
     img = tvtk.JPEGReader(file_name=filename)
@@ -123,6 +124,15 @@ def draw_groundtrack_surface(scene):
 
     return surface
 
+def draw_groundtrack_sat(sat_lla, scene):
+    lat = np.rad2deg(sat_lla[0])
+    lon = attitude.normalize( np.rad2deg(sat_lla[1]), -180, 180)
+    alt = sat_lla[2]
+    sat = mlab.points3d(lon, lat, 0, 1, figure=scene.mayavi_scene,
+                        scale_factor=10, color=(1, 0, 0))
+
+    return sat
+
 def orbit_mayavi(inertial_state, scene):
     pos_eci = inertial_state[:, 0:3]
     sphere = draw_earth(scene)
@@ -132,12 +142,16 @@ def orbit_mayavi(inertial_state, scene):
 
 
 @mlab.animate(delay=50)
-def animate_sat(sat_mlab_source, sat_pos_eci, eci_scene):
+def animate_scenes(sat_mlab_source, gsat_mlab_source, sat_pos_eci, lla_pos, eci_scene, groundtrack_scene):
     increment = 1
     frame_play = 0
     while frame_play <= sat_pos_eci.shape[0]:
         x, y, z = sat_pos_eci[frame_play, :]
+        
+        lat = attitude.normalize(np.rad2deg(lla_pos[frame_play, 0]), -90, 90)
+        lon = attitude.normalize(np.rad2deg(lla_pos[frame_play, 1]), -180, 180, False)
         sat_mlab_source.set(x=x, y=y, z=z)
+        gsat_mlab_source.set(x=lon, y=lat, z=0)
         frame_play += increment
         yield
 

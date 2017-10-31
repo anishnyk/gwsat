@@ -12,10 +12,12 @@ from mayavi.core.ui.api import MayaviScene, SceneEditor, MlabSceneModel
 from mayavi import mlab
 
 from gwsat import visualization, simulation
-from astro import constants
+from astro import constants, geodetic
 import numpy as np
 
 
+# TODO: Do all fo the astrodynamics inside the simulate module instead of here.
+# TODO: Leave only GUI shit in this thing
 class MainWindow(traits.api.HasTraits):
     run_sim_button = traits.api.Button('Run Sim')
     animate_button = traits.api.Button('Animate')
@@ -59,6 +61,18 @@ class MainWindow(traits.api.HasTraits):
         """Just run the simulation and save the data
         """
         self.jd, self.state = simulation.run_sim()
+        
+        # convert ECI state to ECEF and LLA
+        self.eci_pos = self.state[:, 0:3]
+        self.ecef_pos = np.zeros_like(self.eci_pos)
+        self.lla_pos = np.zeros_like(self.eci_pos)
+        for ii in range(self.jd.shape[0]):
+            Reci2ecef = geodetic.eci2ecef(self.jd[ii])
+            ecef = Reci2ecef.dot(self.eci_pos[ii, :])
+            self.ecef_pos[ii, :] = ecef
+            lla = geodetic.ecef2lla(ecef)
+            self.lla_pos[ii, :] = np.array([lla[1], lla[2], lla[3]]) # geodetic
+
 
         # draw earth
         self.central_body = visualization.draw_earth(self.orbit_scene)
@@ -68,22 +82,27 @@ class MainWindow(traits.api.HasTraits):
         
         # draw groundtrack
         self.groundtrack_image = visualization.draw_groundtrack_surface(self.groundtrack_scene)
-        
-        # self.groundtrack_sat = mlab.points3d(0, 0, 0, 1, figure=self.groundtrack_scene.mayavi_scene)
+        self.groundtrack_sat = visualization.draw_groundtrack_sat(self.lla_pos[100, :], self.groundtrack_scene) 
 
     def _animate_button_fired(self):
         """Animate all the plots
         """
+        # initialize ECI orbit plot
         mlab.clf(self.orbit_scene.mayavi_scene)
         self.central_body = visualization.draw_earth(self.orbit_scene)
 
         # draw the satellite
-        pos = self.state[:, 0:3] / constants.earth.radius
+        pos = self.eci_pos / constants.earth.radius
         self.eci_sat = mlab.points3d(pos[0, 0], pos[0, 1], pos[0, 2], 1,
                                      figure=self.orbit_scene.mayavi_scene,
                                      scale_factor=0.2, color=(1, 0, 0))
-        a = visualization.animate_sat(
-            self.eci_sat.mlab_source, pos, self.orbit_scene)
+        # initialize groundtrack
+        mlab.clf(self.groundtrack_scene.mayavi_scene)
+        self.groundtrack_image = visualization.draw_groundtrack_surface(self.groundtrack_scene)
+        self.groundtrack_sat = visualization.draw_groundtrack_sat(self.lla_pos[100, :], self.groundtrack_scene) 
+
+        # animate all the scenes
+        a = visualization.animate_scenes(self.eci_sat.mlab_source, self.groundtrack_sat.mlab_source, pos, self.lla_pos, self.orbit_scene, self.groundtrack_scene)
 
 
 if __name__ == '__main__':
