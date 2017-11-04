@@ -83,7 +83,9 @@ class MainWindow(traits.api.HasTraits):
         # draw groundtrack
         self.groundtrack_image = visualization.draw_groundtrack_surface(self.groundtrack_scene)
         self.groundtrack_sat = visualization.draw_groundtrack_sat(self.lla_pos[100, :], self.groundtrack_scene) 
-
+        
+        # draw a reference frame for ECI in the attitude plot
+        
     def _animate_button_fired(self):
         """Animate all the plots
         """
