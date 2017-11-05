@@ -31,7 +31,8 @@ class MainWindow(traits.api.HasTraits):
     central_body = traits.api.Instance(PipelineBase)
     eci_orbit = traits.api.Instance(PipelineBase)  # orbit in ECI
     eci_sat = traits.api.Instance(PipelineBase)  # satelite position in ECI
-    
+    sat_model = traits.api.Instance(PipelineBase)
+
     groundtrack_image = traits.api.Instance(PipelineBase)
     groundtrack_sat = traits.api.Instance(PipelineBase)
     # arrange the scenes and buttons into groups
@@ -56,6 +57,9 @@ class MainWindow(traits.api.HasTraits):
                                                  orbit_group,
                                                  att_group),
                              width=800, height=600, resizable=True)
+    
+    # read and store the STL file as attributes
+    self.V, self.F = visalization.read_obj('./data/GWSAT_deployed.obj')
 
     def _run_sim_button_fired(self):
         """Just run the simulation and save the data
@@ -64,6 +68,9 @@ class MainWindow(traits.api.HasTraits):
          
         # convert ECI state to ECEF and LLA
         self.eci_pos = self.state[:, 0:3]
+        self.eci_vel = self.state[:, 3:6]
+        self.Rbody2eci = self.state[:, 6:15]
+
         self.ecef_pos = np.zeros_like(self.eci_pos)
         self.lla_pos = np.zeros_like(self.eci_pos)
         for ii in range(self.jd.shape[0]):
@@ -85,7 +92,8 @@ class MainWindow(traits.api.HasTraits):
         self.groundtrack_sat = visualization.draw_groundtrack_sat(self.lla_pos[100, :], self.groundtrack_scene) 
         
         # draw a reference frame for ECI in the attitude plot
-        
+        self.sat_model = visualization.draw_satellite(self.Rbody2eci, self.attitude_scene)
+
     def _animate_button_fired(self):
         """Animate all the plots
         """

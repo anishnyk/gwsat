@@ -140,7 +140,15 @@ def orbit_mayavi(inertial_state, scene):
 
     mlab.show()
 
+# TODO: Write obj reader. Parse out the material sections
+def read_obj(filename):
+    pass
 
+# TODO: Draw triangular mesh. Also rotate according to R
+def draw_satellite(Rbody2eci, V, F, scene):
+    """Draw the satellite defined by V and F
+    """
+    pass
 @mlab.animate(delay=50)
 def animate_scenes(sat_mlab_source, gsat_mlab_source, sat_pos_eci, lla_pos, eci_scene, groundtrack_scene):
     increment = 1
