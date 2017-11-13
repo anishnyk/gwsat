@@ -12,10 +12,10 @@ dependencies:
 - jedi
 - matplotlib
 - mayavi
+- pillow
 - traits
 - traitsui
 - vtk
-- scipy
 - pyqt=4
 - pytest
 - pytest-cov
@@ -24,5 +24,6 @@ dependencies:
   - kinematics
   - spacetrack
   - spiceypy
+  - scipy
 prefix: /home/shankar/anaconda3/envs/astro
 

@@ -45,7 +45,10 @@ python run_sim.py
 ### Things to model
 
 * [ ] High Fidelity gravity model - spherical harmonic
+    * [ ] Add to `astro`
 * [ ] Earth orientation parameters
+    * [ ] Should compare this against SPICE
+* [ ] Drag model
 * [ ] Star field and star tracker imagery/estimation
 * [ ] Ground imaging/pointing - simulate camera imagery of Costa Rica
 * [ ] Thruster - muCAT thrusters and all actuators
@@ -56,6 +59,9 @@ python run_sim.py
 * [ ] Link budget - simulate ground site transmission/reception
 * [ ] Magnetic field of the Earth - one of the primary acutators
 * [ ] Simulate GPS constellation - use SPICE/GPS ephemerides
-
+* [ ] Create TraitsUI dialog for starting sim and visualizing multiple
+    * [ ] Mayavi animation for orbit
+    * [ ] Attitude motion - Body ref frame, ECI, LVLH frames, vectors to sun/ground stations
+    * [ ] Camera FOV
 
 
